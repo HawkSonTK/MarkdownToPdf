@@ -77,7 +77,11 @@ namespace MarkdownToPdf
 
         private async Task ConvertMarkdownFilesToPdf()
         {
-            var markdownFiles = Directory.GetFiles(selectedFolderPath!, "*.md", SearchOption.TopDirectoryOnly)
+            var searchOption = IncludeSubfoldersCheckBox.IsChecked == true 
+                ? SearchOption.AllDirectories 
+                : SearchOption.TopDirectoryOnly;
+                
+            var markdownFiles = Directory.GetFiles(selectedFolderPath!, "*.md", searchOption)
                                         .Where(f => !Path.GetFileName(f).StartsWith("."))
                                         .ToArray();
 
@@ -87,7 +91,8 @@ namespace MarkdownToPdf
                 return;
             }
 
-            LogMessage($"{markdownFiles.Length}個のMarkdownファイルが見つかりました。変換を開始します...");
+            var searchModeText = IncludeSubfoldersCheckBox.IsChecked == true ? "(サブフォルダ含む)" : "(現在のフォルダのみ)";
+            LogMessage($"{markdownFiles.Length}個のMarkdownファイルが見つかりました{searchModeText}。変換を開始します...");
 
             var successCount = 0;
             var failureCount = 0;
@@ -97,13 +102,14 @@ namespace MarkdownToPdf
                 try
                 {
                     var fileName = Path.GetFileName(mdFile);
-                    LogMessage($"変換中: {fileName}");
+                    var relativePath = Path.GetRelativePath(selectedFolderPath!, mdFile);
+                    LogMessage($"変換中: {relativePath}");
 
                     var markdownContent = await File.ReadAllTextAsync(mdFile);
                     
                     if (string.IsNullOrWhiteSpace(markdownContent))
                     {
-                        LogMessage($"スキップ (空ファイル): {fileName}");
+                        LogMessage($"スキップ (空ファイル): {relativePath}");
                         continue;
                     }
 
@@ -115,18 +121,19 @@ namespace MarkdownToPdf
                     if (success)
                     {
                         successCount++;
-                        LogMessage($"✓ 完了: {fileName} → {Path.GetFileName(pdfPath)}");
+                        LogMessage($"✓ 完了: {relativePath} → {Path.GetFileName(pdfPath)}");
                     }
                     else
                     {
                         failureCount++;
-                        LogMessage($"✗ 失敗: {fileName}");
+                        LogMessage($"✗ 失敗: {relativePath}");
                     }
                 }
                 catch (Exception ex)
                 {
                     failureCount++;
-                    LogMessage($"✗ エラー ({Path.GetFileName(mdFile)}): {ex.Message}");
+                    var relativePath = Path.GetRelativePath(selectedFolderPath!, mdFile);
+                    LogMessage($"✗ エラー ({relativePath}): {ex.Message}");
                 }
 
                 await Task.Delay(100);

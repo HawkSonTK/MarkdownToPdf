@@ -24,9 +24,20 @@
             <Button Grid.Column="2" Name="SelectFolderButton" Content="フォルダ選択" Width="100" Click="SelectFolderButton_Click"/>
         </Grid>
         
-        <!-- 変換開始ボタン -->
-        <Button Grid.Row="1" Name="ConvertButton" Content="変換開始" Width="120" Height="35" Margin="10" 
-                HorizontalAlignment="Center" Click="ConvertButton_Click" IsEnabled="False"/>
+        <!-- オプションとボタン -->
+        <Grid Grid.Row="1" Margin="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <CheckBox Grid.Column="0" Name="IncludeSubfoldersCheckBox" Content="サブフォルダも検索" 
+                      VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,20,0"/>
+            
+            <Button Grid.Column="1" Name="ConvertButton" Content="変換開始" Width="120" Height="35" 
+                    Click="ConvertButton_Click" IsEnabled="False"/>
+        </Grid>
         
         <!-- 進行状況バー -->
         <ProgressBar Grid.Row="2" Name="ProgressBar" Height="20" Margin="10,5" Visibility="Collapsed"/>
