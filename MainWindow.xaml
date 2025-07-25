@@ -1,0 +1,42 @@
+<Window x:Class="MarkdownToPdf.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        Title="Markdown to PDF Converter" Height="600" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="200"/>
+        </Grid.RowDefinitions>
+        
+        <!-- フォルダ選択 -->
+        <Grid Grid.Row="0" Margin="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" Content="選択フォルダ:" VerticalAlignment="Center"/>
+            <TextBox Grid.Column="1" Name="SelectedFolderTextBox" Margin="10,0" IsReadOnly="True" VerticalAlignment="Center"/>
+            <Button Grid.Column="2" Name="SelectFolderButton" Content="フォルダ選択" Width="100" Click="SelectFolderButton_Click"/>
+        </Grid>
+        
+        <!-- 変換開始ボタン -->
+        <Button Grid.Row="1" Name="ConvertButton" Content="変換開始" Width="120" Height="35" Margin="10" 
+                HorizontalAlignment="Center" Click="ConvertButton_Click" IsEnabled="False"/>
+        
+        <!-- 進行状況バー -->
+        <ProgressBar Grid.Row="2" Name="ProgressBar" Height="20" Margin="10,5" Visibility="Collapsed"/>
+        
+        <!-- WebView2 (非表示) -->
+        <wv2:WebView2 Grid.Row="3" Name="WebView" Visibility="Collapsed" Height="0"/>
+        
+        <!-- ログ表示 -->
+        <GroupBox Grid.Row="4" Header="処理ログ" Margin="10">
+            <ListBox Name="LogListBox" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+        </GroupBox>
+    </Grid>
+</Window>
