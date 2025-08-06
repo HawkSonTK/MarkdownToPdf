@@ -40,56 +40,57 @@ namespace MarkdownToPdf
         });
     </script>
     <style>
-        body { 
+        body {{ 
             font-family: 'Meiryo', 'Yu Gothic', sans-serif; 
             padding: 20px; 
             line-height: 1.6;
             color: #333;
-        }
-        h1, h2, h3, h4, h5, h6 {
+        }}
+        h1, h2, h3, h4, h5, h6 {{
             color: #2c3e50;
             margin-top: 1.5em;
             margin-bottom: 0.5em;
-        }
-        table {
+        }}
+        table {{
             border-collapse: collapse;
             width: 100%;
             margin: 1em 0;
-        }
-        table th, table td {
+        }}
+        table th, table td {{
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
-        }
-        table th {
+        }}
+        table th {{
             background-color: #f2f2f2;
-        }
-        code {
+        }}
+        code {{
             background-color: #f4f4f4;
             padding: 2px 4px;
             border-radius: 3px;
             font-family: 'Consolas', 'Monaco', monospace;
-        }
-        pre {
+        }}
+        pre {{
             background-color: #f4f4f4;
             padding: 10px;
             border-radius: 5px;
             overflow-x: auto;
-        }
-        blockquote {
+        }}
+        blockquote {{
             border-left: 4px solid #3498db;
             margin: 1em 0;
             padding-left: 1em;
             color: #666;
-        }
+        }}
     </style>
 </head>
 <body>
-    {{BODY}}
+    {{{{BODY}}}}
 </body>
 </html>";
             return template.Replace("{{BODY}}", htmlContent);
         }
+
 
         public static bool ContainsMermaid(string markdownContent)
         {

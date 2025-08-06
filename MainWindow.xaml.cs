@@ -11,6 +11,8 @@ namespace MarkdownToPdf
     {
         private string? selectedFolderPath;
         private PdfGenerator? pdfGenerator;
+        private PreviewWindow? previewWindow;
+        private string[] markdownFiles = Array.Empty<string>();
 
         public MainWindow()
         {
@@ -45,7 +47,9 @@ namespace MarkdownToPdf
                 selectedFolderPath = dialog.SelectedPath;
                 SelectedFolderTextBox.Text = selectedFolderPath;
                 ConvertButton.IsEnabled = true;
+                PreviewButton.IsEnabled = true;
                 LogMessage($"フォルダが選択されました: {selectedFolderPath}");
+                LoadMarkdownFilesList();
             }
         }
 
@@ -77,13 +81,10 @@ namespace MarkdownToPdf
 
         private async Task ConvertMarkdownFilesToPdf()
         {
-            var searchOption = IncludeSubfoldersCheckBox.IsChecked == true 
-                ? SearchOption.AllDirectories 
-                : SearchOption.TopDirectoryOnly;
-                
-            var markdownFiles = Directory.GetFiles(selectedFolderPath!, "*.md", searchOption)
-                                        .Where(f => !Path.GetFileName(f).StartsWith("."))
-                                        .ToArray();
+            if (markdownFiles.Length == 0)
+            {
+                LoadMarkdownFilesList();
+            }
 
             if (markdownFiles.Length == 0)
             {
@@ -140,6 +141,98 @@ namespace MarkdownToPdf
             }
 
             LogMessage($"変換完了: 成功 {successCount}件, 失敗 {failureCount}件");
+        }
+
+        private void PreviewButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(selectedFolderPath))
+            {
+                LogMessage("フォルダが選択されていません。");
+                return;
+            }
+
+            if (markdownFiles.Length == 0)
+            {
+                LogMessage("指定されたフォルダにMarkdownファイルが見つかりませんでした。");
+                return;
+            }
+
+            var selectedIndex = MarkdownFilesListBox.SelectedIndex;
+            if (selectedIndex < 0 || selectedIndex >= markdownFiles.Length)
+            {
+                LogMessage("プレビューするファイルを選択してください。");
+                return;
+            }
+
+            var selectedFilePath = markdownFiles[selectedIndex];
+            
+            if (previewWindow == null || !previewWindow.IsVisible)
+            {
+                previewWindow = new PreviewWindow();
+                previewWindow.Owner = this;
+                if (pdfGenerator != null)
+                {
+                    previewWindow.SetPdfGenerator(pdfGenerator, LogMessage);
+                }
+                previewWindow.Show();
+            }
+            
+            previewWindow.SetFileList(markdownFiles, selectedIndex);
+            previewWindow.LoadMarkdownFile(selectedFilePath);
+            previewWindow.Activate();
+            
+            LogMessage($"プレビューを開きました: {Path.GetFileName(selectedFilePath)}");
+        }
+
+        private void LoadMarkdownFilesList()
+        {
+            if (string.IsNullOrEmpty(selectedFolderPath))
+                return;
+
+            var searchOption = IncludeSubfoldersCheckBox.IsChecked == true 
+                ? SearchOption.AllDirectories 
+                : SearchOption.TopDirectoryOnly;
+                
+            markdownFiles = Directory.GetFiles(selectedFolderPath, "*.md", searchOption)
+                                    .Where(f => !Path.GetFileName(f).StartsWith("."))
+                                    .ToArray();
+
+            MarkdownFilesListBox.Items.Clear();
+            
+            foreach (var file in markdownFiles)
+            {
+                var relativePath = Path.GetRelativePath(selectedFolderPath, file);
+                MarkdownFilesListBox.Items.Add(relativePath);
+            }
+
+            var searchModeText = IncludeSubfoldersCheckBox.IsChecked == true ? "(サブフォルダ含む)" : "(現在のフォルダのみ)";
+            LogMessage($"{markdownFiles.Length}個のMarkdownファイルが見つかりました{searchModeText}");
+        }
+
+        private void MarkdownFilesListBox_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (MarkdownFilesListBox.SelectedIndex >= 0 && MarkdownFilesListBox.SelectedIndex < markdownFiles.Length)
+            {
+                var selectedIndex = MarkdownFilesListBox.SelectedIndex;
+                var selectedFilePath = markdownFiles[selectedIndex];
+                
+                if (previewWindow == null || !previewWindow.IsVisible)
+                {
+                    previewWindow = new PreviewWindow();
+                    previewWindow.Owner = this;
+                    if (pdfGenerator != null)
+                    {
+                        previewWindow.SetPdfGenerator(pdfGenerator, LogMessage);
+                    }
+                    previewWindow.Show();
+                }
+                
+                previewWindow.SetFileList(markdownFiles, selectedIndex);
+                previewWindow.LoadMarkdownFile(selectedFilePath);
+                previewWindow.Activate();
+                
+                LogMessage($"プレビューを開きました: {Path.GetFileName(selectedFilePath)}");
+            }
         }
 
         private void LogMessage(string message)
